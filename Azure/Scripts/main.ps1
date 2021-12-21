@@ -122,7 +122,7 @@ foreach ($p in $Partners) {
     } 
 
     if ($p.LicensedUserCount -gt 1) {
-        $PartnerStats.Stats += [PSCustomObject]@{
+        $pStats  = [PSCustomObject]@{
             Date = (Get-Date).ToString()
             UsersWithMfa = $p.MFADetails.UsersWithMFA
             UsersWithoutMfa = $p.MFADetails.UsersWithoutMfa
@@ -130,6 +130,8 @@ foreach ($p in $Partners) {
             PercentageMFA = $p.PercentageMFA
             LicensedUserCount = $p.LicensedUserCount
         }
+
+        $PartnerStats.Stats += ($pStats | ConvertTo-Json | Out-String)
     }
 
 
