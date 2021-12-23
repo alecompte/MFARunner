@@ -22,112 +22,112 @@
             "Description": "Should be a https://api.calendly.com/event_types/* url, this event will be the only one accepted by the calendly hook",
             "Type": "String",
             "DefaultValue": "empty",
-            "Encrypted": "False",
-            "Configurable": "True"
+            "Encrypted": false,
+            "Configurable": true
         },
         {
             "Name": "calendlyApiKey",
             "Description": "This is the calendly API Key, it is required for the tool to function properly.",
             "Type": "String",
             "DefaultValue": "empty",
-            "Encrypted": "True",
-            "Configurable": "True"
+            "Encrypted": true,
+            "Configurable": true
         },
         {
             "Name": "emailerEnabled",
             "Description": "This enable / disables the automatic emailing. It is false by default",
             "Type": "Bool",
-            "DefaultValue": "False",
-            "Encrypted": "False",
-            "Configurable": "True"
+            "DefaultValue": false,
+            "Encrypted": false,
+            "Configurable": true
         },
         {
             "Name": "EmailTemplateBase",
             "Description": "This is your base email template, it needs to be UTF-8 encoded and contains both {{$DisplayName}} and {{$CutoffDate}} to work properly.",
             "Type": "string",
             "DefaultValue": "empty",
-            "Encrypted": "False",
-            "Configurable": "True"
+            "Encrypted": false,
+            "Configurable": true
         },
         {
             "Name": "EnableMFACutoff",
             "Description": "Enables/Disable automatic MFA enablement after a set value of time.",
             "Type": "Bool",
-            "DefaultValue": "False",
-            "Encrypted": "False",
-            "Configurable": "True"
+            "DefaultValue": false,
+            "Encrypted": false,
+            "Configurable": true
         },
         {
             "Name": "Partners",
             "Description": "This is where all parnters are held",
             "Type": "String",
             "DefaultValue": "empty",
-            "Encrypted": "False",
-            "Configurable": "False"
+            "Encrypted": false,
+            "Configurable": false
         },
         {
             "Name": "Statistics",
             "Description": "This is where MFA enrollment statistics are held",
             "Type": "String",
             "DefaultValue": "empty",
-            "Encrypted": "False",
-            "Configurable": "False"
+            "Encrypted": false,
+            "Configurable": false
         },
         {
             "Name": "Users",
             "Description": "This is where user-specific data is held",
             "Type": "String",
             "DefaultValue": "empty",
-            "Encrypted": "False",
-            "Configurable": "False"
+            "Encrypted": false,
+            "Configurable": false
         },
         {
             "Name": "emailSmtpServer",
             "Description": "This is your email SMTP server",
             "Type": "String",
             "DefaultValue": "smtp.office365.com",
-            "Encrypted": "False",
-            "Configurable": "True"
+            "Encrypted": false,
+            "Configurable": true
         },
         {
             "Name": "emailFrom",
             "Description": "This is the from value where automatic email come from",
             "Type": "String",
             "DefaultValue": "empty",
-            "Encrypted": "False",
-            "Configurable": "True"
+            "Encrypted": false,
+            "Configurable": true
         },
         {
             "Name": "emailSubject",
             "Description": "The email subject",
             "Type": "String",
             "DefaultValue": "empty",
-            "Encrypted": "False",
-            "Configurable": "True"
+            "Encrypted": false,
+            "Configurable": true
         },
         {
             "Name": "emailServerPort",
             "Description": "The port for the email server",
             "Type": "Integer",
             "DefaultValue": 587,
-            "Encrypted": "False",
-            "Configurable": "True"
+            "Encrypted": false,
+            "Configurable": true
         },
         {
             "Name": "emailServerUseSSL",
             "Description": "Should the email server use SSL",
             "Type": "Bool",
-            "DefaultValue": "True",
-            "Encrypted": "False",
-            "Configurable": "True"
+            "DefaultValue": true,
+            "Encrypted": false,
+            "Configurable": true
         },
         {
             "Name": "MFACutoffDelay",
             "Description": "How many days to wait before force-enabling MFA",
             "Type": "Integer",
             "DefaultValue": 60,
-            "Encrypted": "False",
-            "Configurable": "True"
+            "Encrypted": false,
+            "Configurable": true
         }
 
     ],
@@ -136,17 +136,16 @@
             "Name": "smtpCreds",
             "Title": "SMTP User/Password",
             "Description": "Credentials for SMTP server",
-            "Required": "True"
+            "Required": true
         },        
         {
-            "Name": "MSParnterCreds",
+            "Name": "MSPartnerCreds",
             "Title": "MS Partner Account Creds",
             "Description": "Those credentials need to have access to all tenants.",
-            "Required": "True"
+            "Required": true
         }
 
     ]
-
 
 
 }

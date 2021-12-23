@@ -18,16 +18,16 @@ function Deploy-MFARunner {
 
   try
   {
-    Get-MsolDomain -ErrorAction Stop > $null
+    $null = Get-MsolDomain -ErrorAction Stop > $null
   }
   catch 
   {
     Write-Host "Connecting to Microsoft Online, you will have a prompt and need to fill your credentials."
-    Connect-MsolService -ErrorAction Stop
+    $null = Connect-MsolService -ErrorAction Stop
   }
 
   Write-Host "Connecting to Azure, you will have a prompt and need to fill in your credentials"
-  Connect-AzAccount -ErrorAction Stop
+  $null = Connect-AzAccount -ErrorAction Stop
 
   Write-Host "Completed signing in, now scanning your current setup"
 
@@ -71,15 +71,74 @@ function Deploy-MFARunner {
 
   Write-Host "Creating automation account with name $AName"
 
-  New-AzAutomationAccount @AutomationAccountParams -ErrorAction Stop
+  $null = New-AzAutomationAccount @AutomationAccountParams -ErrorAction Stop
 
   Write-Host "Automation account has been created, saving info.."
 
-  Set-MFAProfile -AutomationAccountName $AName -RessourceGroupName $RessourceGroups[($rgc - 1)].ResourceGroupName
-
+  $Null = Set-MFAProfile -AutomationAccountName $AName -ResourceGroupName $RessourceGroups[($rgc - 1)].ResourceGroupName
+  $Null = Get-MFAProfile
   Write-Host "Info has been saved, you can now auto-load our settings by calling Get-MFAProfile"
 
-
+  Write-Host "We'll now need some credentials"
   
+  foreach ($credObject in $Config.Credentials) {
+    Write-Host $credObject.Title
+    Write-Host $credObject.Description
+    Write-Host "We'll wait while you fetch those credentials, they will be stored securely inside an AzAutomationCredential"
+    Read-Host -Prompt "Press any key to continue"
+    $creds = Get-Credential 
+
+    While (!$creds) {
+      Write-Host "Invalid input"
+      Read-Host -Prompt "Press any key to continue"
+      $creds = Get-Credential
+    }
+
+    $Null = New-AzAutomationCredential -ResourceGroupName $env:MFA_RGN -AutomationAccountName $env:MFA_AAN -Name $credObject.Name -Value $creds -ErrorAction Stop
+
+  }
+
+  Write-Host "Good, we now need to define quite a few variables.."
+
+  foreach ($v in $Config.Variables) {
+    if (!$v.Configurable) {
+      $null = New-AzAutomationVariable -ResourceGroupName $env:MFA_RGN -AutomationAccountName $env:MFA_AAN -Name $v.Name -Value $v.DefaultValue -Encrypted $v.Encrypted
+    } else {
+        $val = Auto-Prompt -Var $v
+
+        $Params = @{
+          AutomationAccountName = $env:MFA_AAN
+          ResourceGroupName = $env:MFA_RGN
+          Name = $v.Name
+          Encrypted = $v.Encrypted
+          Value = $val 
+        }
+
+        $null = New-AzAutomationVariable @Params
+
+    }
+  }
+
+  Write-Host "All variables were successfully provisioned, we'll now automatically setup some schedules"
+  $BaseParams = @{
+    AutomationAccountName = $env:MFA_AAN
+    ResourceGroupName = $env:MFA_RGN
+  }
+  $TimeZone = (Get-TimeZone).Id
+
+  $null = New-AzAutomationSchedule @BaseParams -Name "EveryDayMidnight" -TimeZone $TimeZone -StartTime "00:00" -DayInterval 1 -Description "Used for main loop"
+  $null = New-AzAutomationSchedule @BaseParams -Name "EveryDay6AM" -TimeZone $TimeZone -StartTime "06:00" -DayInterval 1 -Description "Used for emailer"
+
+  Write-Host "We've setup some schedules, we'll now import our scripts."
+
+  foreach ($rb in $Config.Scripts) {
+    $path = $PSScriptRoot + "\..\" + $rb.Path
+    Write-Host ("Importing " + $rb.Name)
+    Write-Host ("Description: " + $rb.Description)
+    $null = Import-AzAutomationRunbook @BaseParams -Path $path -Name $rb.Name -Description $rb.Description -Type PowerShell
+  }
+
+  Write-Host "We can't really go ahead and install module manually, so you'll need to install MSOnline in this runbook for PowerShell 5.1, we'll wait while you do that.."
+  Read-Host -Prompt "Press any key to continue"
 
 }
