@@ -126,8 +126,10 @@ function Deploy-MFARunner {
   }
   $TimeZone = (Get-TimeZone).Id
 
-  $null = New-AzAutomationSchedule @BaseParams -Name "EveryDayMidnight" -TimeZone $TimeZone -StartTime "00:00" -DayInterval 1 -Description "Used for main loop"
-  $null = New-AzAutomationSchedule @BaseParams -Name "EveryDay6AM" -TimeZone $TimeZone -StartTime "06:00" -DayInterval 1 -Description "Used for emailer"
+  $Tomorrow = (Get-Date -Hour 00 -Minute 00 -Second 00).AddDays(1)
+
+  $null = New-AzAutomationSchedule @BaseParams -Name "EveryDayMidnight" -TimeZone $TimeZone -StartTime $Tomorrow -DayInterval 1 -Description "Used for main loop"
+  $null = New-AzAutomationSchedule @BaseParams -Name "EveryDay6AM" -TimeZone $TimeZone -StartTime $Tomorrow -DayInterval 1 -Description "Used for emailer"
 
   Write-Host "We've setup some schedules, we'll now import our scripts."
 
@@ -136,9 +138,24 @@ function Deploy-MFARunner {
     Write-Host ("Importing " + $rb.Name)
     Write-Host ("Description: " + $rb.Description)
     $null = Import-AzAutomationRunbook @BaseParams -Path $path -Name $rb.Name -Description $rb.Description -Type PowerShell
+
+    ## If we have a webhook, we deploy it here.
+    if ($rb.WebHook) {
+      Write-Host "Now creating webhook for Calendly"
+      $wh = New-AzAutomationWebhook @BaseParams -Name $rb.WebHook.Name -RunbookName $rb.Name -IsEnabled $rb.WebHook.IsEnabled -ExpiryTime ((Get-Date).AddYears(2))
+
+      Write-Output ""
+      Write-Output "The next line is your WebHook URI. KEEP IT. We'll attempt to automatically hook it to calendly API"
+      Write-Output $wh.WebhookURI
+      Read-Host "Press any key to continue..."
+    }
+
   }
 
-  Write-Host "We can't really go ahead and install module manually, so you'll need to install MSOnline in this runbook for PowerShell 5.1, we'll wait while you do that.."
+  Write-Host "We can't really go ahead and install a powershell module from the gallery manually, so you'll need to install MSOnline in this runbook for PowerShell 5.1, we'll wait while you do that.."
   Read-Host -Prompt "Press any key to continue"
+
+
+
 
 }

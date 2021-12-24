@@ -13,7 +13,12 @@
         {
             "Name": "MFARunner-CalendlyHook",
             "Description": "This hooks calendly appointments",
-            "Path": "Azure/Scripts/calendly-hook.ps1"
+            "Path": "Azure/Scripts/calendly-hook.ps1",
+            "WebHook": {
+                "Name": "CalendlyHook",
+                "IsEnabled": true,
+                "HookTo": "CalendlyAPI"
+            }
         }
     ],
     "Variables": [
