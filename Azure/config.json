@@ -19,9 +19,28 @@
                 "IsEnabled": true,
                 "HookTo": "CalendlyAPI"
             }
+        },
+        {
+            "Name": "MFARunner-CalendlyEventFinder",
+            "Description": "This hooks calendly appointments to find out which event is the right one",
+            "Path": "Azure/Scripts/calendly-eventfinder.ps1",
+            "WebHook": {
+                "Name": "CalendlyEventFinder",
+                "IsEnabled": true,
+                "HookTo": "CalendlyAPI"
+            }
         }
     ],
     "Variables": [
+        {
+            "Name": "tempCalendlyHits",
+            "Description": "Used to store hits on the temporary webhook",
+            "Type": "String",
+            "Encrypted": false,
+            "Configurable": false,
+            "DefaultValue": "empty"
+
+        },
         {
             "Name": "calendlyAcceptableEvent",
             "Description": "Should be a https://api.calendly.com/event_types/* url, this event will be the only one accepted by the calendly hook",

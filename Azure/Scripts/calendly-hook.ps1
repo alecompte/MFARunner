@@ -159,4 +159,3 @@ if ($FoundEvent) {
     Write-Output "Writing changes"
     Set-AutomationVariable -Name Users -Value ($UserTable | ConvertTo-Json -Compress).ToString()
 }
-

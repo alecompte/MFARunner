@@ -151,22 +151,85 @@ function Deploy-MFARunner {
       ## This should be adusjted so it's not only for calendly
       Write-Host "Now creating webhook for Calendly"
       $wh = New-AzAutomationWebhook @BaseParams -Name $rb.WebHook.Name -RunbookName $rb.Name -IsEnabled $rb.WebHook.IsEnabled -ExpiryTime ((Get-Date).AddYears(2))
+      if ($rb.WebHook.Name -eq "CalendlyHook") {
+        Write-Output ""
+        Write-Output "The next line is your WebHook URI. KEEP IT. We'll attempt to automatically hook it to calendly API"
+        Write-Output $wh.WebhookURI
+        Read-Host "Press any key to continue..."
+        $cRes = New-CalendlyHook -RunbookUri $wh.WebhookURI -APIKey $calendlyAPIKey
+      } elseif ($rb.WebHook.Name -eq "CalendlyEventFinder") {
+        Write-Host "We'll now try to figure out which event is yours, you'll need to book a test appointment, but not just now."
+        
+        $previousCount = 1
 
-      Write-Output ""
-      Write-Output "The next line is your WebHook URI. KEEP IT. We'll attempt to automatically hook it to calendly API"
-      Write-Output $wh.WebhookURI
-      Read-Host "Press any key to continue..."
-      $cRes = New-CalendlyHook -RunbookUri $wh.WebhookURI -APIKey $calendlyAPIKey
+        Write-Host "Creating calendly webhook"
 
-      if ($cRes.statusCode -eq 200) {
-        ## We can proceed here to figure out which event is the right one
-        ## We'd need to add a script that we can also hook to calendly to check which event type is the right one
-        ## So we'd need to create 2, but this should be pretty to achieve. We should also cleanup afterwards
+        $cRes = New-CalendlyHook -RunbookUri $wh.WebhookURI -APIKey $calendlyAPIKey
+
+        if ($cRes.statusCode -eq 200) {
+          Write-Output "Create successful.."
+          Write-Output "Now, you'll need to book an event using the exact link you'll send to people, event data will be displayed here"
+          $RightEvent = $False 
+
+          while (!$RightEvent) {
+            $tempHits = (Get-AzAutomationVariable -Name "tempCalendlyHits" @BaseParams).Value
+            if ($tempHits -ne "empty") {
+              $tempHits = ConvertFrom-Json $tempHits
+            }
+            
+            if ($tempHits.Count -gt $previousCount) {
+              ##We've got a new one apparently
+              $h = $tempHits[$tempHits.Cunt]
+
+              if (($h -ne "empty") -or ($h -ne "notanevent")) {
+                Write-Output ("We received a new event, you have to see if this is the right one..")
+                Write-Output ("Event Name: " + $h.resource.name)
+                Write-Output ("Start time: " + $h.resource.start_time)
+                Write-Output ("Type: " + $h.resource.event_type)
+                Write-Output ("Guests: ")
+                foreach ($guest in $h.resource.event_guests) {
+                  Write-Output (" - Email: "+ $gues.email)
+                }
+                
+                Write-Output ("Is this right?")
+                [string]$c = Read-Host -Prompt "[Y]es / [N]o"
+                if ($c.ToLower() -eq "y") {
+                  $RightEvent = $True
+                  ##Handle right event here
+                  $null = Set-AzAutomationVariable @BaseParans -Name "calendlyAcceptableEvent" -Value $h.resource.event_type -Encrypted $False
+                  Write-Output "We've set the variable calendlyAcceptableEvent, the webhook should now fully work. We'll clean up."
+                  $null = Remove-AzAutomationRunbook @BaseParams -Name "CalendlyEventFinder" -Force
+                  Write-Host "Done"
+                } else {
+                  $previousCount = $tempHits.Count 
+                }
+
+              } else {
+                Write-Verbose "Doing nothing, wrong type.."  
+              }
+
+
+            } else {
+              ##Not hit, let's wait a bit..
+              Write-Host "No hit.. Waiting"
+              Start-Sleep -Seconds 5
+            }
+
+          }
+          
+
+
+        } else {
+          Write-Error "Unable to create calendly hook"
+        }
+
+
       }
-
     }
 
   }
+
+  Write-Host "Alright, we're almost almost done. You just need to run Setup-Partners to push your partner tenants and all will be over."
 
   Write-Host "We can't really go ahead and install a powershell module from the gallery manually, so you'll need to install MSOnline in this runbook for PowerShell 5.1, we'll wait while you do that.."
   Read-Host -Prompt "Press any key to continue"
