@@ -1,0 +1,13 @@
+{
+  "current": "1.0.0",
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "changes": [
+        "Initial release",
+        "Should be ready for production"
+      ],
+      "deprecated": "false"
+    }
+  ]
+}

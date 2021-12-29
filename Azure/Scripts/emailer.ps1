@@ -1,3 +1,4 @@
+#v:1.0.0
 $Enabled = Get-AutomationVariable -Name 'emailerEnabled'
 
 $EmailTemplate = Get-AutomationVariable -Name 'EmailTemplateBase'

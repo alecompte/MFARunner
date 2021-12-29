@@ -1,3 +1,4 @@
+#v:1.0.0
 ##Todo: Change UserTable behaviour to handle deleted users, recreate it everytime.
 
 ##Users
