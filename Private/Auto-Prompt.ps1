@@ -27,8 +27,14 @@ function Auto-Prompt {
     "Path" {
       Write-Host ("You must set variable " + $var.Name + " of type " + $var.Type)
       Write-Host ("Desciption: " + $var.Description)
+      Write-Host ("Please note, this is a PATH! The file will be imported using UTF8 enconding")
       [String]$val = Read-Host -Prompt "Enter Value"
-      return $val
+      while (!(Test-Path -Path $val)) {
+        Write-Host ("Error when trying to read file at path: " + $val)
+        Write-Host ("Please try again..")
+        [String]$val = Read-Host -Prompt "Enter Value"
+      }
+      return (Get-Content -Encoding UTF8 -Path $val)
     }
   }
 
