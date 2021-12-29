@@ -100,6 +100,8 @@ function Deploy-MFARunner {
 
   Write-Host "Good, we now need to define quite a few variables.."
 
+  $calendlyAPIKey = ""
+
   foreach ($v in $Config.Variables) {
     if (!$v.Configurable) {
       $null = New-AzAutomationVariable -ResourceGroupName $env:MFA_RGN -AutomationAccountName $env:MFA_AAN -Name $v.Name -Value $v.DefaultValue -Encrypted $v.Encrypted
@@ -112,6 +114,11 @@ function Deploy-MFARunner {
           Name = $v.Name
           Encrypted = $v.Encrypted
           Value = $val 
+        }
+        
+        ## We must keep this for future use!
+        if ($v.Name -eq "calendlyApiKey") {
+          $clanedlyAPIKey = $val
         }
 
         $null = New-AzAutomationVariable @Params
@@ -141,6 +148,7 @@ function Deploy-MFARunner {
 
     ## If we have a webhook, we deploy it here.
     if ($rb.WebHook) {
+      ## This should be adusjted so it's not only for calendly
       Write-Host "Now creating webhook for Calendly"
       $wh = New-AzAutomationWebhook @BaseParams -Name $rb.WebHook.Name -RunbookName $rb.Name -IsEnabled $rb.WebHook.IsEnabled -ExpiryTime ((Get-Date).AddYears(2))
 
@@ -148,6 +156,14 @@ function Deploy-MFARunner {
       Write-Output "The next line is your WebHook URI. KEEP IT. We'll attempt to automatically hook it to calendly API"
       Write-Output $wh.WebhookURI
       Read-Host "Press any key to continue..."
+      $cRes = New-CalendlyHook -RunbookUri $wh.WebhookURI -APIKey $calendlyAPIKey
+
+      if ($cRes.statusCode -eq 200) {
+        ## We can proceed here to figure out which event is the right one
+        ## We'd need to add a script that we can also hook to calendly to check which event type is the right one
+        ## So we'd need to create 2, but this should be pretty to achieve. We should also cleanup afterwards
+      }
+
     }
 
   }
