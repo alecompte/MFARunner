@@ -1,4 +1,31 @@
 {
+    "Questions": [
+        {
+            "Text": "Do you have a calendly account with a pro subscription?",
+            "HelpLink": "",
+            "Required": true
+        },
+        {
+            "Text": "Is your Calendly team and the event you'll use for this already setup?",
+            "HelpLink": "",
+            "Required": true
+        },
+        {
+            "Text": "Do you have an azure account with a resource group and a subscription already created and setup?",
+            "HelpLink": "",
+            "Required": true
+        },
+        {
+            "Text": "Do you have your calendly API key?",
+            "HelpLink": "",
+            "Required": true
+        },
+        {
+            "Text": "Do you have a licensed account in your CSP tenant with a very strong password setup to access other tenants and the credentials handy?",
+            "HelpLink": "",
+            "Required": true
+        }
+    ]
     "Scripts": [
         {
             "Name": "MFARunner-Emailer",

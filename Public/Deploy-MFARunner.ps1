@@ -29,6 +29,17 @@ function Deploy-MFARunner {
   Write-Host "Connecting to Azure, you will have a prompt and need to fill in your credentials"
   $null = Connect-AzAccount -ErrorAction Stop
 
+  Write-Host "Let's ask you a few questions, to see if you're ready"
+
+  foreach ($q in $Config.Questions) {
+    if (!Ask-Question -Question $q) {
+      Write-Error "You're not ready, please look at the documentation."
+      return
+    }
+
+  }
+
+
   Write-Host "Completed signing in, now scanning your current setup"
 
   Write-Host "Currently, we only support creating a new automation account on an EXISTING resource group, make sure to have your resource group already created before proceeding."
