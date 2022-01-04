@@ -110,7 +110,7 @@ function Deploy-MFARunner {
   }
 
   Write-Host "Good, we now need to define quite a few variables.."
-
+2
   $calendlyAPIKey = ""
 
   foreach ($v in $Config.Variables) {
@@ -129,7 +129,7 @@ function Deploy-MFARunner {
         
         ## We must keep this for future use!
         if ($v.Name -eq "calendlyApiKey") {
-          $clanedlyAPIKey = $val
+          $calendlyAPIKey = $val
         }
 
         $null = New-AzAutomationVariable @Params
@@ -145,9 +145,10 @@ function Deploy-MFARunner {
   $TimeZone = (Get-TimeZone).Id
 
   $Tomorrow = (Get-Date -Hour 00 -Minute 00 -Second 00).AddDays(1)
+  $TomorrowSixAm = (Get-Date -Hour 06 -Minute 00 -Second 00).AddDays(1)
 
   $null = New-AzAutomationSchedule @BaseParams -Name "EveryDayMidnight" -TimeZone $TimeZone -StartTime $Tomorrow -DayInterval 1 -Description "Used for main loop"
-  $null = New-AzAutomationSchedule @BaseParams -Name "EveryDay6AM" -TimeZone $TimeZone -StartTime $Tomorrow -DayInterval 1 -Description "Used for emailer"
+  $null = New-AzAutomationSchedule @BaseParams -Name "EveryDay6AM" -TimeZone $TimeZone -StartTime $TomorrowSixAm -DayInterval 1 -Description "Used for emailer"
 
   Write-Host "We've setup some schedules, we'll now import our scripts."
 
@@ -156,20 +157,23 @@ function Deploy-MFARunner {
     Write-Host ("Importing " + $rb.Name)
     Write-Host ("Description: " + $rb.Description)
     $null = Import-AzAutomationRunbook @BaseParams -Path $path -Name $rb.Name -Description $rb.Description -Type PowerShell
+    $null = Publish-AzAutomationRunbook @BaseParams -Name $rb.Name
 
     ## If we have a webhook, we deploy it here.
     if ($rb.WebHook) {
       ## This should be adusjted so it's not only for calendly
       Write-Host "Now creating webhook for Calendly"
-      try {
-        $wh = New-AzAutomationWebhook @BaseParams -Name $rb.WebHook.Name -RunbookName $rb.Name -IsEnabled $rb.WebHook.IsEnabled -ExpiryTime ((Get-Date).AddYears(2)) -ErrorAction Stop -ErrorVariable $Error
-      } catch {
+      $WebhookError = "noerror"
 
-        Write-Error "We've encountered a critical error, we'll now clean-up this deployment and you'll have to try again. The full error will be returned."
-        Remove-Deployment
-
-        return $Error
+      $wh = New-AzAutomationWebhook @BaseParams -Name $rb.WebHook.Name -RunbookName $rb.Name -IsEnabled $rb.WebHook.IsEnabled -ExpiryTime ((Get-Date).AddYears(2)) -ErrorAction Stop -ErrorVariable WebHookError
+      
+      if ($WebhookError -ne "noerror") {
+        Write-Error $WebhookError
+        Write-Error -Message "Fatal error, will clean install."
+        Remove-Deployment @BaseParams
+        return $WebhookError
       }
+      
       if ($rb.WebHook.Name -eq "CalendlyHook") {
         Write-Output ""
         Write-Output "The next line is your WebHook URI. KEEP IT. We'll attempt to automatically hook it to calendly API"

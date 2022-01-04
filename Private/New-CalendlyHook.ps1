@@ -13,7 +13,7 @@ function New-CalendlyHook {
 
   $ReqParams = @{
     "Headers" = @{
-      "Authorization" = "Bearer $APIKey"
+      "Authorization" = $APIKey
     }
   }
 
