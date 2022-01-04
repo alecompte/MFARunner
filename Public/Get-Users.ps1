@@ -2,8 +2,8 @@ function Get-Users {
     [CmdletBinding()]
     param(
         [Parameter()]
-        [string]$ResourceGroupName = "AntoinesSandbox",
-        [string]$AutomationAccountName = "GlobalAutomation",
+        [string]$ResourceGroupName = $env:MFA_RGN,
+        [string]$AutomationAccountName = $env:MFA_AAN,
         [string]$Domain
     )
 

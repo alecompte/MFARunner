@@ -11,7 +11,7 @@
 RootModule = '.\MFARunner.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.0'
+ModuleVersion = '0.5.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -26,7 +26,7 @@ CompanyName = "Natrix Technologies"
 Copyright = '(c) Antoine Lecompte | Natrix Technologies. All rights Reserved'
 
 # Description of the functionality provided by this module
-Description = 'This module provides functionnality to automatically export zones and records for Windows DNS and import them in AWS Route 53 this requires AWS.Tools.Route53'
+Description = 'This module provides functionality to automate MFA appointment enrollment for microsoft partners'
 
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
@@ -39,7 +39,7 @@ CmdletsToExport = @("*")
 VariablesToExport = '*'
 
 # HelpInfo URI of this module
-HelpInfoURI = 'https://github.com/alecompte/PSDNStoRoute53'
+HelpInfoURI = 'https://github.com/alecompte/MFARunner'
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
 # DefaultCommandPrefix = ''

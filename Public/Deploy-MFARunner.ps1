@@ -1,13 +1,21 @@
 function Deploy-MFARunner {
+  [CmdletBinding()]
 
   $ConfigPath = $PSScriptRoot + "\..\Azure\config.json"
-  
-
 
   if (Test-Path $ConfigPath) {
-    $Config = Get-Content -Path $ConfigPath | ConvertFrom-Json
+    $Config = (Get-Content -Path $ConfigPath | ConvertFrom-Json)
   } else {
     Write-Error "Could not find config.json file at $ConfigPath, aborting."
+    return
+  }
+
+  $Config | Write-Verbose
+
+  if (!$Config.Version) {
+    Write-Error "Config is wrong somehow, here's raw file content"
+    Write-Output $ConfigPath
+    Get-Content -Path $ConfigPath | Write-Output
     return
   }
 
@@ -28,16 +36,6 @@ function Deploy-MFARunner {
 
   Write-Host "Connecting to Azure, you will have a prompt and need to fill in your credentials"
   $null = Connect-AzAccount -ErrorAction Stop
-
-  Write-Host "Let's ask you a few questions, to see if you're ready"
-
-  foreach ($q in $Config.Questions) {
-    if (!Ask-Question -Question $q) {
-      Write-Error "You're not ready, please look at the documentation."
-      return
-    }
-
-  }
 
 
   Write-Host "Completed signing in, now scanning your current setup"
