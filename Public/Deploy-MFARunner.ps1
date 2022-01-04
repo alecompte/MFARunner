@@ -1,6 +1,8 @@
 function Deploy-MFARunner {
   [CmdletBinding()]
+  param(
 
+  )
   $ConfigPath = $PSScriptRoot + "\..\Azure\config.json"
 
   if (Test-Path $ConfigPath) {
@@ -10,7 +12,7 @@ function Deploy-MFARunner {
     return
   }
 
-  $Config | Write-Verbose
+  $Config | Out-String | Write-Verbose
 
   if (!$Config.Version) {
     Write-Error "Config is wrong somehow, here's raw file content"
