@@ -48,7 +48,7 @@
             "Type": "String",
             "DefaultValue": "empty",
             "Encrypted": false,
-            "Configurable": true
+            "Configurable": false
         },
         {
             "Name": "calendlyApiKey",
@@ -68,8 +68,8 @@
         },
         {
             "Name": "EmailTemplateBase",
-            "Description": "This is your base email template, it needs to be UTF-8 encoded and contains both {{$DisplayName}} and {{$CutoffDate}} to work properly.",
-            "Type": "string",
+            "Description": "This is a path to your base email template, it needs to be UTF-8 encoded and contains both {{$DisplayName}} and {{$CutoffDate}} to work properly.",
+            "Type": "Path",
             "DefaultValue": "empty",
             "Encrypted": false,
             "Configurable": true

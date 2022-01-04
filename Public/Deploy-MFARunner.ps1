@@ -161,7 +161,15 @@ function Deploy-MFARunner {
     if ($rb.WebHook) {
       ## This should be adusjted so it's not only for calendly
       Write-Host "Now creating webhook for Calendly"
-      $wh = New-AzAutomationWebhook @BaseParams -Name $rb.WebHook.Name -RunbookName $rb.Name -IsEnabled $rb.WebHook.IsEnabled -ExpiryTime ((Get-Date).AddYears(2))
+      try {
+        $wh = New-AzAutomationWebhook @BaseParams -Name $rb.WebHook.Name -RunbookName $rb.Name -IsEnabled $rb.WebHook.IsEnabled -ExpiryTime ((Get-Date).AddYears(2)) -ErrorAction Stop -ErrorVariable $Error
+      } catch {
+
+        Write-Error "We've encountered a critical error, we'll now clean-up this deployment and you'll have to try again. The full error will be returned."
+        Remove-Deployment
+
+        return $Error
+      }
       if ($rb.WebHook.Name -eq "CalendlyHook") {
         Write-Output ""
         Write-Output "The next line is your WebHook URI. KEEP IT. We'll attempt to automatically hook it to calendly API"

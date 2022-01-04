@@ -5,6 +5,7 @@ function Auto-Prompt {
     [Object]$Var
   )
 
+  Write-Host "---"
   switch ($Var.Type) {
     "String" {
       Write-Host ("You must set variable " + $var.Name + " of type " + $var.Type)
@@ -38,6 +39,7 @@ function Auto-Prompt {
     }
   }
 
+  Write-Host "---"
 
 
 }
